@@ -1,0 +1,9 @@
+dist/
+build/
+data/
+models/
+detexe.egg-info/
+venv/
+*.pyc
+.idea
+aux/

@@ -1,0 +1,10 @@
+# ByteEntropyHistogram
+# ByteHistogram
+# DataDirectories
+# ExportsInfo
+# GeneralFileInfo
+# HeaderFileInfo
+# ImportsInfo
+# OpCodeVectors
+ SectionInfo
+# StringExtractor
