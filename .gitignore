@@ -1,0 +1,11 @@
+dist/
+build/
+data/
+models/
+detexe.egg-info/
+venv/
+features_selection.txt
+*.pyc
+.idea
+.eggs/
+aux/
