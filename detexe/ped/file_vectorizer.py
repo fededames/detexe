@@ -93,8 +93,8 @@ def vec_files_from_pe_dir(
 def get_features_from_malware_benign_dirs(
     malware_dir: PurePath, benign_dir: PurePath, config: PurePath, verbose: bool
 ) -> Tuple[np.ndarray, np.ndarray]:
-    """Return representative vectors for the the PE files contained in malware and bening directories. The extracted
-    features will be determined by the specified config file"""
+    """Return representative vectors for the the PE files contained in malware and bening directories.
+    The extracted features will be determined by the specified config file"""
     return vec_files_from_pe_dir(malware_dir, config, verbose), vec_files_from_pe_dir(
         benign_dir, config, verbose
     )

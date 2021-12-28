@@ -8,7 +8,7 @@ with open(os.path.join(cwd, "README.md"), encoding="utf-8") as f:
 
 setup(
     name="detexe",
-    version="0.0.1",
+    version="0.0.2.2",
     description="A framework to create malware detectors based on machine learning.",
     keywords=["malware, pe, machine learning, static analysis, adversarial attack"],
     long_description_content_type="text/markdown",
