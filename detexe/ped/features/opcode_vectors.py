@@ -10,7 +10,7 @@ from nltk import ngrams
 
 from .base_feature import FeatureType
 
-W2V_DIR = pathlib.Path(__file__).parent.absolute() / "feature_helpers/w2v_opcode"
+W2V_DIR = pathlib.Path(__file__).parent.absolute() / "feature_helpers"
 W2V_PATH = W2V_DIR / "w2v200_opcode"
 log = logging.getLogger(__name__)
 
