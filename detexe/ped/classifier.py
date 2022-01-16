@@ -4,16 +4,22 @@ Classsifier: Set of functions, for training and predicting feature vectorsof a P
 
 import logging
 import pathlib
+from functools import partial
 from pprint import pformat
 from time import time
 from typing import Tuple, Union
 
 import lightgbm as lgb
+import matplotlib.pyplot as plt
 import numpy as np
+import optuna
 import pandas as pd
+from optuna.integration import LightGBMPruningCallback
+from optuna.visualization.matplotlib import (plot_optimization_history,
+                                             plot_param_importances)
 from sklearn.metrics import (average_precision_score, confusion_matrix,
-                             f1_score, make_scorer)
-from sklearn.model_selection import KFold
+                             f1_score, log_loss, make_scorer)
+from sklearn.model_selection import KFold, StratifiedKFold
 from skopt import BayesSearchCV
 from skopt.callbacks import DeadlineStopper, DeltaYStopper
 from skopt.space import Integer, Real
@@ -37,9 +43,9 @@ def train_from_feature_vectors(
         params = {"verbose": -1}
 
     lgb_dataset = lgb.Dataset(x_train, y_train)
-    lgb_model = lgb.train(params, lgb_dataset)
-    lgb_model.save_model(filename=model_path)
+    lgb_model = lgb.train({"n_estimators": 100, "verbose": -1}, lgb_dataset)
     y_preds = lgb_model.predict(x_test)
+    lgb_model.save_model(filename=model_path)
     log.info(f"Specified threshold: {threshold}")
     y_preds_int = np.where(y_preds > threshold, 1, 0)
     log.info("Confusion matrix:")
@@ -91,8 +97,72 @@ def predict_sample(
     return y_preds, y_preds_int
 
 
+def optimize(trial, x: np.ndarray, y: np.ndarray):
+
+    params_grid = {
+        "n_estimators": trial.suggest_int("n_estimators", 30, 10000, step=100),
+        "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.3, log=True),
+        "num_leaves": trial.suggest_int("num_leaves", 2, int(len(x) / 2)),
+        "max_depth": trial.suggest_int("max_depth", 3, 12),
+        "min_child_samples": trial.suggest_int("min_child_samples", 2, 200),
+        "max_bin": trial.suggest_int("max_bin", 100, 300),
+        "reg_alpha": trial.suggest_float("reg_alpha", 0.01, 100.0, log=True),
+        "reg_lambda": trial.suggest_float("reg_lambda", 0.01, 100.0, log=True),
+        "min_child_weight": trial.suggest_float(
+            "min_child_weight", 0.01, 15.0, log=True
+        ),
+        "subsample": trial.suggest_float("subsample", 0.2, 0.95, step=0.1),
+        "subsample_freq": trial.suggest_categorical("bagging_freq", [1]),
+        "colsample_bytree": trial.suggest_float(
+            "colsample_bytree", 0.2, 0.95, step=0.1
+        ),
+    }
+
+    model = lgb.LGBMClassifier(
+        objective="binary", n_jobs=1, random_state=0, **params_grid, verbose=-1
+    )
+    cv = StratifiedKFold(n_splits=5)
+    cv_scores = np.empty(5)
+    for idx, (train_idx, test_idx) in enumerate(cv.split(x, y)):
+        X_train, X_test = x[train_idx], x[test_idx]
+        y_train, y_test = y[train_idx], y[test_idx]
+        model.fit(
+            X_train,
+            y_train,
+            verbose=-1,
+            eval_set=[(X_test, y_test)],
+            eval_metric="binary_logloss",
+            early_stopping_rounds=100,
+            callbacks=[
+                LightGBMPruningCallback(trial, "binary_logloss")
+            ],  # Add a pruning callback
+        )
+        preds = model.predict_proba(X_test)
+        cv_scores[idx] = log_loss(y_test, preds)
+
+    return np.mean(cv_scores)
+
+
+def optimize_hyperparam(
+    model_dir: str, x_train: np.ndarray, y_train: np.ndarray, minutes_limit: int
+):
+    study = optuna.create_study(direction="minimize")
+    optimization_function = partial(optimize, x=x_train, y=y_train)
+    study.optimize(
+        optimization_function, n_trials=100000000, timeout=60 * minutes_limit
+    )
+    plot_param_importances(study)
+    plt.savefig(model_dir + "/parameter_importance.jpg", bbox_inches="tight")
+    plot_optimization_history(study)
+    plt.savefig(model_dir + "/optimization_history.jpg", bbox_inches="tight")
+    log.info(f"Best value (log loss): {study.best_value:.5f}")
+    log.info("Best hyperparameters:")
+    logging.info(pformat(dict(study.best_params.items())))
+    return study.best_params
+
+
 def bayessian_lgb_search(
-    x_train: np.ndarray, y_train: np.ndarray, minutes_limit: int, verbose: int = -1
+    x_train: np.ndarray, y_train: np.ndarray, minutes_limit: int
 ) -> dict:
     """
     Search optimal parameters for a given dataset.

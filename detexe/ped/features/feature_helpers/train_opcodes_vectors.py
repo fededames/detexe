@@ -60,7 +60,8 @@ def train_opcode_vectors(
     num_workers = 8
     if not all_ngrams_features:
         log.error(
-            "No data found build W2V vocabulary. Please, introduce files in your data directories"
+            "No data found to build W2V vocabulary. "
+            "Please, introduce files in your data directories"
         )
         raise EmptyData
     model = Word2Vec(

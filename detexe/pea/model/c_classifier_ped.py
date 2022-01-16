@@ -13,7 +13,7 @@ class CClassifierPED(CClassifier):
 
     def __init__(self, tree_path: str, config: str):
         """
-        Create the EMBER tree.
+        Create the PED classifier.
 
         Parameters
         ----------

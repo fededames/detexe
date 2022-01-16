@@ -118,7 +118,7 @@ class Attacker:
             iterations=10,
         )
 
-        self.adv_path = self.model_dir + f"/adv_dos_{self.malware_filename}.exe"
+        self.adv_path = self.model_dir + f"/adv_dos_{self.malware_filename}"
         return self._launch_attack(attack)
 
     def shift(self) -> float:
@@ -131,7 +131,7 @@ class Attacker:
             iterations=10,
         )
 
-        self.adv_path = self.model_dir + f"/adv_shift_{self.malware_filename}.exe"
+        self.adv_path = self.model_dir + f"/adv_shift_{self.malware_filename}"
         return self._launch_attack(attack)
 
     def section_injection(self, sections: Optional[Tuple[str]] = (".data",)) -> float:
@@ -154,7 +154,7 @@ class Attacker:
             threshold=0,
         )
 
-        self.adv_path = self.model_dir + f"/adv_section_{self.malware_filename}.exe"
+        self.adv_path = self.model_dir + f"/adv_section_{self.malware_filename}"
         return self._launch_attack(attack)
 
     def padding(self, sections: Optional[Tuple[str]] = (".rdata",)) -> float:
@@ -177,7 +177,7 @@ class Attacker:
             iterations=10,
         )
 
-        self.adv_path = self.model_dir + f"/adv_padding_{self.malware_filename}.exe"
+        self.adv_path = self.model_dir + f"/adv_padding_{self.malware_filename}"
         return self._launch_attack(attack)
 
     def all_attacks(self) -> Tuple[float, float, float, float]:
