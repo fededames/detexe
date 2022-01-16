@@ -10,8 +10,9 @@ import pandas as pd
 
 from ..settings import (check_layout_exist, check_root_path,
                         read_directories_from_root)
-from .classifier import (bayessian_lgb_search, predict_from_npz,
-                         predict_sample, train_from_feature_vectors)
+from .classifier import (bayessian_lgb_search, optimize_hyperparam,
+                         predict_from_npz, predict_sample,
+                         train_from_feature_vectors)
 from .file_vectorizer import (get_features_from_malware_benign_dirs,
                               label_and_split_vectorized_dataset)
 from .metrics import (get_best_threshold, get_metrics_model, include_in_plot,
@@ -53,15 +54,14 @@ class Detector:
         self.params_file = self.model_dir + "/optimal_params.json"
         self.verbose = verbose
 
-    def tune(self) -> Tuple[lgb.LGBMModel, float]:
+    def tune(self, timeout: int = 30) -> Tuple[lgb.LGBMModel, float]:
         """Tune and train detector with the found hyper parameters."""
         train_npz_path = self.model_dir + "/train.npz"
         test_npz_path = self.model_dir + "/test.npz"
         if not os.path.isfile(train_npz_path) or not os.path.isfile(test_npz_path):
             self.train()
-        log.info("Searching hyper parameters..")
         if not os.path.isfile(self.params_file):
-            self._tune()
+            self._tune(timeout)
 
         npz_train = np.load(train_npz_path)
         npz_test = np.load(test_npz_path)
@@ -123,29 +123,28 @@ class Detector:
             threshold=threshold,
         )
         if class_prediction >= threshold:
-            log.info(f"Malware: {prediction}")
+            log.info(f"Malware -> {prediction:.3f}, threshold: {threshold:.3f}")
         else:
-            log.info(f"Benign: {prediction}")
+            log.info(f"Benign -> {prediction:0.3f}, threshold: {threshold:.3f}")
         return prediction
 
-    def _tune(self, minutes_limit: int = 30) -> dict:
+    def _tune(self, minutes_limit: int) -> dict:
         """Tune hyper parameters."""
+        log.info("Searching hyper parameters..")
         if not os.path.isdir(self.model_dir):
             log.error(
                 "The indicated model does not exist. Please use first the command train with the indicated model name."
             )
             exit()
         npz_train = np.load(self.model_dir + "/train.npz")
-        if self.verbose:
-            grid_search_verbose = 3
-        else:
-            grid_search_verbose = 0
-        params = bayessian_lgb_search(
+        params = optimize_hyperparam(
+            self.model_dir,
             x_train=npz_train["x"],
             y_train=npz_train["y"],
-            verbose=grid_search_verbose,
             minutes_limit=minutes_limit,
         )
+        params["verbose"] = -1
+
         with open(self.params_file, "w") as f:
             json.dump(params, f)
         return params

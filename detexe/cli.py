@@ -44,6 +44,14 @@ def parse_args():
                 type=str,
                 help="select malware you want to scan",
             )
+        elif action == "tune":
+            subparser.add_argument(
+                "-t",
+                "--timeout",
+                default=30,
+                type=int,
+                help="Select the limit of minutes tu run the hyperparameters serach",
+            )
 
     action_parser.add_parser(
         "layout", help="Build directories layout with models and data directories."
@@ -98,10 +106,9 @@ def parser_selection(cmd_args):
         except WrongFeatureSelection:
             pass
         exit()
-
     model_name = cmd_args.pop("model")
     if command == "scan":
-        config_dir = project_dirs.mode + "/" + model_name
+        config_dir = project_dirs.models_dir + "/" + model_name
     else:
         config_dir = root_dir
     if command == "attack":
