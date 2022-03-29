@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 
 def parse_args():
     """Parse command-line arguments"""
-    parser = argparse.ArgumentParser(description="EXE-Scan CLI")
+    parser = argparse.ArgumentParser(description="DetEXE CLI")
     action_parser = parser.add_subparsers(dest="command", title="actions")
     action_parser.required = True
     action_parser.add_parser(

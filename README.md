@@ -63,11 +63,11 @@ $ detexe attack all --model="foo" --malware="/malware/path.exe"
 ```bash
 $ detexe compare 
 ```
-4. Search for optimal parameters to obtain better result in training. This parameteres will be saved in the model directory.
+4. Search for optimal parameters to obtain better result in training. These parameters will be saved in the model directory.
 ```bash
 $ detexe tune --model="foo"
 ```
-4. Scan a PE file with a trained model.
+5. Scan a PE file with a trained model.
 ```bash
 $ detexe scan --model="foo" --exe="/malware/path.exe"
 ```
