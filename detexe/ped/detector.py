@@ -156,9 +156,9 @@ def compare(plot_name: str) -> Tuple[str, float, float]:
     root_dir = check_root_path()
     project_dirs = read_directories_from_root(root_dir)
     models_subdirectories = [x[0] for x in os.walk(project_dirs.models_dir)][1:]
-    auc_models = {}
     treshold_models = {}
     model_stats = pd.DataFrame()
+    max_auc = 0
     for subdir in models_subdirectories:
         _, model_name = os.path.split(subdir)
         try:
@@ -169,25 +169,26 @@ def compare(plot_name: str) -> Tuple[str, float, float]:
             log.info(subdir + ": Error reading data model. Remove this directory.")
             continue
         roc_auc, recall, precision, thresholds = get_metrics_model(y_preds, y_test)
-        model_stats = pd.DataFrame(
-            {
-                "model": model_name,
-                "auc": roc_auc,
-                "recall": [recall],
-                "precision": [precision],
-                "thresholds": [thresholds],
-            }
-        )
-        auc_models[model_name] = roc_auc
+
         treshold_models[model_name] = thresholds
         label = f"AUC {model_name} = {roc_auc:.2f}"
         include_in_plot(recall, precision, label)
+        if roc_auc >= max_auc:
+            model_stats = pd.DataFrame(
+                {
+                    "model": model_name,
+                    "auc": roc_auc,
+                    "recall": [recall],
+                    "precision": [precision],
+                    "thresholds": [thresholds],
+                }
+            )
+            max_auc = roc_auc
     if model_stats.empty:
         log.error("There are no models to get metrics.")
         raise NonExistingModel
     ix = model_stats["auc"].idxmax()
     row = model_stats.iloc[ix]
-
     th, fscore = get_best_threshold(row["recall"], row["precision"], row["thresholds"])
 
     log.info(f"Model with best results: {row['model']}")

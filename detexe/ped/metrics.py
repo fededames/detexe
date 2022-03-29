@@ -40,5 +40,7 @@ def get_best_threshold(
     "From a range of threshold return the optimal threshold with its fscore metric"
     fscore = (2 * precision * recall) / (precision + recall)
     ix = argmax(fscore)
+    plt.text(0.6, 0.1, f' Best threshold: {thresholds[ix]:.2f}', style='italic', bbox={
+        'facecolor': 'white', 'alpha': 0.5, 'pad': 10})
     plt.scatter(recall[ix], precision[ix], marker="o", color="black", label="Best")
     return thresholds[ix], fscore[ix]

@@ -35,7 +35,7 @@ class GeneralFileInfo(FeatureType):
             "imports": len(lief_binary.imported_functions),
             "has_relocations": int(lief_binary.has_relocations),
             "has_resources": int(lief_binary.has_resources),
-            "has_signature": int(lief_binary.has_signature),
+            "has_signature": int(lief_binary.has_signatures),
             "has_tls": int(lief_binary.has_tls),
             "symbols": len(lief_binary.symbols),
         }

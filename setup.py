@@ -8,7 +8,8 @@ with open(os.path.join(cwd, "README.md"), encoding="utf-8") as f:
 
 setup(
     name="detexe",
-    version="0.0.2.2",
+    python_requires = ">python3.8",
+    version="0.0.2.3",
     description="A framework to create malware detectors based on machine learning.",
     keywords=["malware, pe, machine learning, static analysis, adversarial attack"],
     long_description_content_type="text/markdown",
@@ -28,6 +29,7 @@ setup(
         "matplotlib >= 3.3.4",
         "nltk >= 3.6.3",
         "numpy >= 1.19.5",
+        "optuna >=2.10.0",
         "pandas >= 1.1.5",
         "python_magic >= 0.4.24",
         "scikit_learn >= 1.0.1",

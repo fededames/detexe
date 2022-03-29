@@ -7,7 +7,7 @@ from .base_feature import FeatureType
 
 # iterate through the modules in the current package
 features = []
-for (_, module_name, _) in iter_modules([Path(__file__).resolve().parent]):
+for (_, module_name, _) in iter_modules([str(Path(__file__).resolve().parent)]):
     # import the module and iterate through its attributes
     module = import_module(f"{__name__}.{module_name}")
     for attribute_name in dir(module):

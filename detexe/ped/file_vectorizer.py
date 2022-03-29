@@ -79,7 +79,7 @@ def vec_files_from_pe_dir(
     """
     # debug mode:
     for pe_path in pe_files_from_dirs([directory]):
-    files_vec = np.append(files_vec, vec_from_pe_file(extractor, pe_path), axis=0)
+        files_vec = np.append(files_vec, vec_from_pe_file(extractor, pe_path), axis=0)
     """
     with concurrent.futures.ProcessPoolExecutor(max_workers=8) as pool:
         for pe_path in pe_files_from_dirs([directory]):
