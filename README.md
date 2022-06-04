@@ -8,11 +8,14 @@ A tool to build and analyze static malware detectors, based on machine learning.
 <img width="90%" src="https://raw.githubusercontent.com/fededames/detexe/master/images/detexe.png"/>
 </p>
 
-
 DetEXE allows the selection of different features to train malware detectors through the LightGBM framework.
 The project is developed in a way that users can contribute by adding new features and combining them.
 It also offers the the options to compare the created models and evaluate the detectors' robustness by perturbing malware files.
 
+## Demo
+1. Train models: https://www.youtube.com/watch?v=EYhaf9MkwhQ
+2. Compare trained models: https://www.youtube.com/watch?v=iFghA35AO1w
+3. Attack models: https://www.youtube.com/watch?v=7xLls3R7gyk
 
 ## Installation
 
